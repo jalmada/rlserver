@@ -1,0 +1,22 @@
+{
+  "name": "rlserver",
+  "version": "1.0.0",
+  "description": "Save Data To ES from RL Thingy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jalmada/rlserver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jalmada/rlserver/issues"
+  },
+  "homepage": "https://github.com/jalmada/rlserver#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
