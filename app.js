@@ -9,7 +9,7 @@ var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-var allowedOrigins = ["http://localhost:9000", "http://localhost:3001", "http://localhost:3000"];
+var allowedOrigins = ["http://localhost:9000", "http://localhost:3001", "http://localhost:3000","http://content.overwolf.com/anoahjhemlbnmhkljlgbmnfflpnhgjpmfjnhdfoe/"];
 
 app.use(cors({
     origin: function(origin, callback){
