@@ -2,12 +2,15 @@ var express = require('express');
 var client = require('../connection.js');  
 var router = express.Router();
 
+var meUsername = "xaratustra";
+
+//Info Update
 var processPlayerInfo = function(data){
   
 }
 
 var processMatchFeature = function(data){
-  return data;
+  return null;
 }
 
 var processRosterFeature = function(data){
@@ -22,6 +25,10 @@ var processRosterFeature = function(data){
         playerData = JSON.parse(decodeURI(data.playersInfo[propName]))
         break;
       }
+    }
+
+    if(playerData.name == meUsername){
+      return null;
     }
     data.playersInfo[`player${playerNo}`] = playerData;
   }
@@ -64,7 +71,12 @@ var processInfo = function(data){
     dataToSave.body = processStatsFeature(data.info);
   }
 
+  if(!dataToSave.body){
+    return;
+  }
+
   dataToSave.index = feature;
+  dataToSave.body.type = "info";
   dataToSave.body.date = (new Date()).toISOString();
 
   //Saves to ES
@@ -74,21 +86,49 @@ var processInfo = function(data){
   // }); 
 
 }
+/////////
 
-
-
-var processEvent = function(data){
+var processEvent = function(events){
   //{"events":[{"name":"matchEnd","data":""}]}
-  console.log(data);
+  let dataToSave = {};
+
+  let eventsToProcess = ['matchStart', 'matchEnd', "playerJoined",  "playerLeft", 
+  "score", "opposingTeamGoal", "teamGoal","defeat","victory"];
+
+  for(let i = 0; i < events.length; i++){
+    let event = events[i];
+
+    if(!eventsToProcess.includes(event.name)){
+      continue;
+    }
+
+    dataToSave.body = event.data ? JSON.parse(event.data) : {};
+
+    dataToSave.body.score = dataToSave.body.score ? parseInt(dataToSave.body.score) : 0;
+    dataToSave.body.goals = dataToSave.body.goals ? parseInt(dataToSave.body.goals) : 0;
+    dataToSave.body.deaths = dataToSave.body.deaths ? parseInt(dataToSave.body.deaths) : 0;
+    dataToSave.body.state = dataToSave.body.state ? parseInt(dataToSave.body.state) : 0;
+    dataToSave.body.team_score = dataToSave.body.team_score ? parseInt(dataToSave.body.team_score) : 0;
+
+    dataToSave.body.eventname = event.name;
+    dataToSave.index = "events";
+    dataToSave.body.date = (new Date()).toISOString();
+
+    //Saves to ES
+    console.log(dataToSave);
+    client.index(dataToSave ,function(err,resp,status) {
+       console.log(resp);
+    }); 
+  }
 }
 
 router.post('/', function(req, res, next) {
   let data = req.body;
 
   if('info' in data){
-    processInfo(data);
-  } else if ('event' in data){
-    processEvent(data)
+    //processInfo(data);
+  } else if ('events' in data){
+    processEvent(data.events)
   }
 
   res.sendStatus(200);
